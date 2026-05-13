@@ -10,6 +10,10 @@ import wx
 import gui
 import re
 import calendar
+try:
+	from ._onjGithubUpdater import GitHubReleaseUpdater
+except Exception:
+	GitHubReleaseUpdater = None
 
 addonHandler.initTranslation()
 
@@ -346,6 +350,17 @@ class ResultDialog(wx.Dialog):
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self._updater = None
+		if GitHubReleaseUpdater:
+			self._updater = GitHubReleaseUpdater("dateParser", "Date Parser", "OnjLouis", "dateParser")
+			self._updater.start()
+
+	def terminate(self):
+		if self._updater:
+			self._updater.stop()
+		return super().terminate()
 
 	@script(
 		description=_("Parse a date expression and show the result"),
@@ -353,6 +368,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_dateInput(self, gesture):
 		wx.CallAfter(self._showInputDialog)
+
+	@script(description=_("Check for Date Parser updates"))
+	def script_checkForDateParserUpdate(self, gesture):
+		if self._updater:
+			wx.CallAfter(self._updater.checkNow, True)
+		else:
+			ui.message(_("Updater is not available"))
 
 	def _showInputDialog(self):
 		text = ""
