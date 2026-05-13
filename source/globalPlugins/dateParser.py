@@ -364,7 +364,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(
 		description=_("Parse a date expression and show the result"),
-		gesture="kb:NVDA+e"
+		gesture="kb:NVDA+alt+e"
 	)
 	def script_dateInput(self, gesture):
 		wx.CallAfter(self._showInputDialog)

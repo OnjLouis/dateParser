@@ -4,7 +4,7 @@ Date Parser resolves plain-English date expressions and calendar dates into a co
 
 ## Quick Start
 
-1. Press `NVDA+E` to open Date Parser.
+1. Press `NVDA+Alt+E` to open Date Parser.
 2. Type a date expression (for example `tomorrow`, `next thu`, `5d`, `Mar 5`).
 3. Press `Enter` to resolve it.
 4. Copy results with `Ctrl+C`.
@@ -20,7 +20,7 @@ Date Parser resolves plain-English date expressions and calendar dates into a co
 
 | Shortcut | Action |
 | --- | --- |
-| `NVDA+E` | Open Date Parser input dialog |
+| `NVDA+Alt+E` | Open Date Parser input dialog |
 | `Ctrl+C` | Copy selected result text |
 | `Enter` | Close result dialog |
 | `Escape` | Close result dialog |
