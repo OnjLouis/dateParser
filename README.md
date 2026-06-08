@@ -13,8 +13,10 @@ Date Parser resolves plain-English date expressions and calendar dates into a co
 
 - Everyday words: `today`, `tomorrow`, `yesterday`
 - Weekdays: `mon`, `tuesday`, `next thu`, `last wed`
-- Relative offsets: `5d`, `2w from now`, `5y 4m 3w 2d ago`
-- Calendar dates: `1992-09-01`, `13 Apr 2026`, `Mar 5`
+- Relative offsets: `5d`, `2w from now`, `5y 4m 3w 2d ago`, `5y -4m +3w -2d`
+- Counted weekdays: `25 Fri ago`, `-25Fri`, `3 Mondays prior`
+- Calendar dates: `05/06/2026`, `1992-09-01`, `13 Apr 2026`, `5 jun 26`, `Mar 5`
+- Boundary dates: `end of month`, `start of next year`
 
 ## Keyboard Shortcuts
 
@@ -24,6 +26,7 @@ Date Parser resolves plain-English date expressions and calendar dates into a co
 | `Ctrl+C` | Copy selected result text |
 | `Enter` | Close result dialog |
 | `Escape` | Close result dialog |
+| `F1` | Open help from the input or result dialog |
 
 ## Full Documentation
 

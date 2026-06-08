@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <title>Date Parser - NVDA Add-on Help</title>
   <style>
-    body { font-family: sans-serif; line-height: 1.55; margin: 1rem; max-width: 60rem; }
-    h1, h2, h3 { margin-top: 1.2rem; }
+    body { font-family: sans-serif; line-height: 1.55; margin: 1rem; max-width: 70rem; }
+    h1, h2 { margin-top: 1.2rem; }
     code, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
     kbd { padding: 0.1rem 0.35rem; border: 1px solid #888; border-radius: 0.25rem; }
-    ul { margin-top: 0.25rem; }
-    .examples code { display: inline-block; padding: 0.05rem 0.25rem; background: #f3f3f3; border-radius: 0.2rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #999; padding: 0.45rem 0.6rem; vertical-align: top; text-align: left; }
+    th { background: #f0f0f0; }
     .note { background: #f7f7f7; border-left: 4px solid #999; padding: 0.6rem 0.8rem; }
   </style>
 </head>
@@ -17,91 +18,200 @@
   <h1>Date Parser</h1>
 
   <p>
-    Date Parser lets you type a date (or a plain-English date expression) and get back the resolved calendar date.
-    Results are shown in a copy-friendly dialog with a read-only edit field.
+    Date Parser lets you type a date or a plain-English date expression and get back the resolved calendar date.
+    Results are shown in a copy-friendly read-only edit field.
   </p>
 
   <h2>Shortcut</h2>
   <p>
-    Press <kbd>NVDA</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd> to open the input dialog.
+    Press <kbd>NVDA</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd> to open Date Parser.
+    Press <kbd>F1</kbd> from the input or result dialog to open this help.
   </p>
 
-  <h2>What you can type</h2>
+  <h2>Examples</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>What you type</th>
+        <th>Breakdown</th>
+        <th>Explanation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>05/06/2026</code></td>
+        <td>day 05, month 06, year 2026</td>
+        <td>Numeric dates are interpreted in day/month/year order.</td>
+      </tr>
+      <tr>
+        <td><code>05-06-2026</code></td>
+        <td>day 05, month 06, year 2026</td>
+        <td>Dashes, slashes, and dots are accepted as numeric date separators.</td>
+      </tr>
+      <tr>
+        <td><code>05-06-202605/06/2026</code></td>
+        <td>first recognizable date: 05-06-2026</td>
+        <td>If pasted text contains a clear date followed by other text, Date Parser uses the first clear date.</td>
+      </tr>
+      <tr>
+        <td><code>05 June 2026</code></td>
+        <td>day 05, month June, year 2026</td>
+        <td>Month names and abbreviations are accepted.</td>
+      </tr>
+      <tr>
+        <td><code>5 jun 26</code></td>
+        <td>day 5, month June, short year 26</td>
+        <td>Two-digit years use common date rules: 00 to 69 means 2000 to 2069, and 70 to 99 means 1970 to 1999.</td>
+      </tr>
+      <tr>
+        <td><code>Friday, 5 june 2026</code></td>
+        <td>weekday Friday, day 5, month June, year 2026</td>
+        <td>The weekday is accepted before or after the date. Date Parser will mention if the typed weekday does not match the date.</td>
+      </tr>
+      <tr>
+        <td><code>5 Mar</code></td>
+        <td>day 5, month March, no year</td>
+        <td>If the year is omitted, Date Parser chooses the next matching calendar date.</td>
+      </tr>
+      <tr>
+        <td><code>Mar 5</code></td>
+        <td>month March, day 5, no year</td>
+        <td>Month-first wording is accepted for named months.</td>
+      </tr>
+      <tr>
+        <td><code>25 Fri</code></td>
+        <td>day 25, weekday Friday</td>
+        <td>Finds the next date where the 25th falls on a Friday.</td>
+      </tr>
+      <tr>
+        <td><code>-25 Fri</code></td>
+        <td>previous day 25 that is a Friday</td>
+        <td>A leading minus sign searches backwards instead of forwards.</td>
+      </tr>
+      <tr>
+        <td><code>25 Fri ago</code></td>
+        <td>25th Friday before today</td>
+        <td>Adding a direction word makes the number a count of Fridays, not a day of the month.</td>
+      </tr>
+      <tr>
+        <td><code>-25Fri</code></td>
+        <td>25th Friday before today</td>
+        <td>A compact counted-weekday form. The minus sign means backwards.</td>
+      </tr>
+      <tr>
+        <td><code>+25Fri</code></td>
+        <td>25th Friday after today</td>
+        <td>A compact counted-weekday form. The plus sign means forwards.</td>
+      </tr>
+      <tr>
+        <td><code>3 Mondays prior</code></td>
+        <td>3rd Monday before today</td>
+        <td>Words such as prior, before, back, ago, ahead, later, and from now are accepted.</td>
+      </tr>
+      <tr>
+        <td><code>today</code></td>
+        <td>current date</td>
+        <td>Returns today's date.</td>
+      </tr>
+      <tr>
+        <td><code>tomorrow</code></td>
+        <td>current date plus 1 day</td>
+        <td>Returns tomorrow's date.</td>
+      </tr>
+      <tr>
+        <td><code>yesterday</code></td>
+        <td>current date minus 1 day</td>
+        <td>Returns yesterday's date.</td>
+      </tr>
+      <tr>
+        <td><code>next year</code></td>
+        <td>same month and day, one year ahead</td>
+        <td>Useful when you want today's date but in the next year.</td>
+      </tr>
+      <tr>
+        <td><code>last year</code></td>
+        <td>same month and day, one year ago</td>
+        <td>Useful when you want today's date but in the previous year.</td>
+      </tr>
+      <tr>
+        <td><code>end of month</code></td>
+        <td>last day of the current month</td>
+        <td>Useful when you need the calendar boundary and do not want to remember month lengths.</td>
+      </tr>
+      <tr>
+        <td><code>start of next year</code></td>
+        <td>January 1 of next year</td>
+        <td>Boundary phrases work with this, next, and last month or year.</td>
+      </tr>
+      <tr>
+        <td><code>a year ago</code></td>
+        <td>same month and day, one year ago</td>
+        <td>Standard English relative wording is accepted.</td>
+      </tr>
+      <tr>
+        <td><code>in three days</code></td>
+        <td>current date plus 3 days</td>
+        <td>Numbers can be digits or common English number words.</td>
+      </tr>
+      <tr>
+        <td><code>3</code></td>
+        <td>current date plus 3 days</td>
+        <td>A plain positive number means that many days from today.</td>
+      </tr>
+      <tr>
+        <td><code>-951</code></td>
+        <td>current date minus 951 days</td>
+        <td>A plain negative number means that many days ago. For large offsets, Date Parser also shows the calendar distance.</td>
+      </tr>
+      <tr>
+        <td><code>5d</code></td>
+        <td>current date plus 5 days</td>
+        <td>Compact offsets support <code>d</code> for days.</td>
+      </tr>
+      <tr>
+        <td><code>2w from now</code></td>
+        <td>current date plus 2 weeks</td>
+        <td>Compact offsets support <code>w</code> for weeks.</td>
+      </tr>
+      <tr>
+        <td><code>5y 4m 3w 2d ago</code></td>
+        <td>5 years, 4 months, 3 weeks, and 2 days ago</td>
+        <td>Multiple compact units can be combined.</td>
+      </tr>
+      <tr>
+        <td><code>5y -4m +3w -2d</code></td>
+        <td>5 years forward, 4 months back, 3 weeks forward, 2 days back</td>
+        <td>Explicit plus and minus signs are applied to each unit. If the signs are mixed, Date Parser reports it as a mixed signed offset.</td>
+      </tr>
+      <tr>
+        <td><code>next thu</code></td>
+        <td>next Thursday</td>
+        <td>Weekday names and abbreviations are accepted.</td>
+      </tr>
+      <tr>
+        <td><code>33 wednesdays ago</code></td>
+        <td>33rd Wednesday before today</td>
+        <td>Repeating weekdays can be counted backwards or forwards.</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <h3>Everyday words</h3>
-  <ul class="examples">
-    <li><code>today</code></li>
-    <li><code>tomorrow</code></li>
-    <li><code>yesterday</code></li>
-  </ul>
-
-  <h3>Weekdays</h3>
-  <p>
-    Type a weekday name or abbreviation. If you type a weekday by itself (for example <code>mon</code>),
-    Date Parser assumes you mean the next occurrence of that day (including today if it matches).
-  </p>
-  <ul class="examples">
-    <li><code>mon</code>, <code>tuesday</code>, <code>fri</code></li>
-    <li><code>next thu</code>, <code>last wed</code>, <code>this monday</code></li>
-  </ul>
-
-  <h3>Repeating weekdays</h3>
-  <p>
-    Ask for the Nth occurrence of a weekday in the past or future. Numbers can be digits, words, or ordinals.
-  </p>
-  <ul class="examples">
-    <li><code>three tuesdays from now</code></li>
-    <li><code>33 wednesdays ago</code></li>
-    <li><code>3rd tue from now</code></li>
-    <li><code>2 fri ago</code></li>
-  </ul>
-
-  <h3>Relative offsets (compact)</h3>
-  <p>
-    You can type compact relative offsets using:
-    <strong>y</strong> (years), <strong>m</strong> (months), <strong>w</strong> (weeks), <strong>d</strong> (days).
-    This works well across language boundaries because it relies on numbers and unit letters.
-  </p>
-  <ul class="examples">
-    <li><code>5d</code>, <code>-5d</code>, <code>+5d</code></li>
-    <li><code>3d ago</code>, <code>2w from now</code></li>
-    <li><code>1y</code>, <code>6m</code>, <code>15w</code></li>
-    <li><code>5y 4m 3w 2d</code></li>
-    <li><code>5y 4m 3w 2d ago</code></li>
-  </ul>
   <div class="note">
-    <strong>Note:</strong> If you type a number with <code>m</code> (for example <code>5m</code>), it means <em>months</em>.
-    To refer to Monday, type <code>mon</code> (not <code>m</code>).
-    For named months in calendar dates, type <code>Mar</code>/<code>March</code>, e.g. <code>5 March</code> or <code>Mar 5</code>.
+    <strong>Note:</strong> Numeric dates use day/month/year. Named month dates can be day-first or month-first.
+    In compact offsets, <code>m</code> means months; type <code>mon</code> for Monday.
   </div>
 
-  <h3>Calendar dates</h3>
-  <p>
-    Date Parser supports ISO format and friendly month-name formats:
-  </p>
-  <ul class="examples">
-    <li><code>1992-09-01</code></li>
-    <li><code>13 Apr 2026</code>, <code>13 April 2026</code></li>
-    <li><code>5 Mar</code>, <code>5 March 2026</code></li>
-    <li><code>Mar 5</code>, <code>March 5 2026</code></li>
-  </ul>
-  <p>
-    If you omit the year, Date Parser chooses a sensible year: it will use the current year if the date
-    has not happened yet, otherwise it will use next year.
-  </p>
-
   <h2>Understanding the result</h2>
-  <ul>
-    <li><strong>Resolved date</strong>: the calendar date that matches your input</li>
-    <li><strong>Relation</strong>: how far in the past or future it is (years, months, weeks, days)</li>
-    <li><strong>Day offset</strong>: the total number of days from today (shown when not already explicit)</li>
-  </ul>
+  <p>
+    The result includes the original input, the resolved date, and a short meaning. When it adds useful information,
+    Date Parser also shows the calendar distance and the total day offset.
+  </p>
 
   <h2>Copying and closing</h2>
   <ul>
     <li>The result text is in a read-only edit field so you can copy it.</li>
     <li>Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy selected text.</li>
-    <li>Press <kbd>Enter</kbd> or <kbd>Escape</kbd> to close the dialog.</li>
+    <li>Press <kbd>Enter</kbd> or <kbd>Escape</kbd> to close the result dialog.</li>
   </ul>
 </body>
 </html>
