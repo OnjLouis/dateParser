@@ -559,6 +559,8 @@ def openManual():
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	scriptCategory = "Date Parser"
+
 	@script(
 		description=_("Parse a date expression and show the result"),
 		gesture="kb:NVDA+alt+e"

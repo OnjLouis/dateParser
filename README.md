@@ -28,6 +28,10 @@ Date Parser resolves plain-English date expressions and calendar dates into a co
 | `Escape` | Close result dialog |
 | `F1` | Open help from the input or result dialog |
 
+## Changes
+
+- 1.0.4: Adds a dedicated Date Parser category in NVDA's Input Gestures dialog.
+
 ## Full Documentation
 
 - Full reference and examples: [`source/doc/en/readme.html`](source/doc/en/readme.html)
