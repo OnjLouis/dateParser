@@ -17,13 +17,14 @@
 <body>
   <h1>Date Parser</h1>
 
-  <h2>What's new in 1.0.4</h2>
+  <h2>What's new in 1.1.0</h2>
   <ul>
-    <li>Date Parser now has its own category in NVDA's Input Gestures dialog.</li>
+    <li>Hours, minutes, and seconds can now be converted into an exact duration.</li>
+    <li>Time-duration results also show the corresponding date and time.</li>
   </ul>
 
   <p>
-    Date Parser lets you type a date or a plain-English date expression and get back the resolved calendar date.
+    Date Parser lets you type a date, a plain-English date expression, or a time duration and get back the resolved result.
     Results are shown in a copy-friendly read-only edit field.
   </p>
 
@@ -189,6 +190,31 @@
         <td>Explicit plus and minus signs are applied to each unit. If the signs are mixed, Date Parser reports it as a mixed signed offset.</td>
       </tr>
       <tr>
+        <td><code>28000h</code></td>
+        <td>1,166 days and 16 hours from now</td>
+        <td>Compact time durations support <code>h</code> for hours.</td>
+      </tr>
+      <tr>
+        <td><code>-28000 hours</code></td>
+        <td>1,166 days and 16 hours ago</td>
+        <td>Full unit names work with positive or negative values.</td>
+      </tr>
+      <tr>
+        <td><code>5000s ago</code></td>
+        <td>1 hour, 23 minutes, and 20 seconds ago</td>
+        <td>Use <code>s</code>, <code>sec</code>, or <code>seconds</code> for seconds.</td>
+      </tr>
+      <tr>
+        <td><code>in 90 minutes</code></td>
+        <td>1 hour and 30 minutes from now</td>
+        <td>Minutes accept <code>min</code>, <code>mins</code>, <code>minute</code>, or <code>minutes</code>.</td>
+      </tr>
+      <tr>
+        <td><code>2h 30min 15s</code></td>
+        <td>2 hours, 30 minutes, and 15 seconds from now</td>
+        <td>Multiple time units can be combined.</td>
+      </tr>
+      <tr>
         <td><code>next thu</code></td>
         <td>next Thursday</td>
         <td>Weekday names and abbreviations are accepted.</td>
@@ -203,13 +229,14 @@
 
   <div class="note">
     <strong>Note:</strong> Numeric dates use day/month/year. Named month dates can be day-first or month-first.
-    In compact offsets, <code>m</code> means months; type <code>mon</code> for Monday.
+    In compact date offsets, <code>m</code> means months; type <code>min</code> for minutes and <code>mon</code> for Monday.
   </div>
 
   <h2>Understanding the result</h2>
   <p>
-    The result includes the original input, the resolved date, and a short meaning. When it adds useful information,
-    Date Parser also shows the calendar distance and the total day offset.
+    Date results include the original input, the resolved date, and a short meaning. When it adds useful information,
+    Date Parser also shows the calendar distance and the total day offset. Duration results show the resolved date and
+    time, the converted duration, whether it is in the past or future, and the exact offset in seconds.
   </p>
 
   <h2>Copying and closing</h2>

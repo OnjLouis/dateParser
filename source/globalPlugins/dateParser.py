@@ -6,6 +6,7 @@ from scriptHandler import script
 import ui
 import addonHandler
 from datetime import datetime, timedelta, date
+from typing import NamedTuple
 import wx
 import gui
 import re
@@ -148,6 +149,35 @@ _MULTI_COMPACT_REL_RE = re.compile(
 )
 _MULTI_COMPACT_REL_TOKEN_RE = re.compile(r"([+-]?\d+)\s*([dDwWmMyY])")
 
+# Time-duration units deliberately exclude bare "m", which already means months.
+_DURATION_TOKEN_RE = re.compile(
+	r"([+-]?\d+)\s*(hours?|hrs?|hr|h|minutes?|mins?|min|seconds?|secs?|sec|s)\b",
+	re.IGNORECASE,
+)
+_DURATION_DIRECTION_RE = re.compile(r"\s+(ago|from\s+now|ahead|later)\s*$", re.IGNORECASE)
+_DURATION_UNIT_SECONDS = {
+	"h": 60 * 60,
+	"hr": 60 * 60,
+	"hrs": 60 * 60,
+	"hour": 60 * 60,
+	"hours": 60 * 60,
+	"min": 60,
+	"mins": 60,
+	"minute": 60,
+	"minutes": 60,
+	"s": 1,
+	"sec": 1,
+	"secs": 1,
+	"second": 1,
+	"seconds": 1,
+}
+
+
+class _DurationResult(NamedTuple):
+	total_seconds: int
+	duration_text: str
+	target: datetime
+
 
 def _parse_int_maybe_words(token: str) -> int:
 	token = token.strip().lower()
@@ -200,6 +230,95 @@ def _normalize_input_text(text: str) -> str:
 	text = text.replace("\u2013", "-").replace("\u2014", "-").replace("\u2212", "-")
 	text = re.sub(r"\s+", " ", text)
 	return text.strip()
+
+
+def _duration_separator_is_valid(text: str) -> bool:
+	return re.sub(r"(?:\s|,|\band\b)+", "", text, flags=re.IGNORECASE) == ""
+
+
+def _format_duration_seconds(total_seconds: int) -> str:
+	remaining = abs(total_seconds)
+	parts = []
+	for unit_seconds, singular, plural in (
+		(24 * 60 * 60, _("day"), _("days")),
+		(60 * 60, _("hour"), _("hours")),
+		(60, _("minute"), _("minutes")),
+		(1, _("second"), _("seconds")),
+	):
+		value, remaining = divmod(remaining, unit_seconds)
+		if value:
+			parts.append(f"{value:,} {singular if value == 1 else plural}")
+	if not parts:
+		return _("0 seconds")
+	return ", ".join(parts)
+
+
+def _parse_duration_expression(text: str, now: datetime = None):
+	norm = _normalize_input_text(text).lower()
+	if not norm:
+		return None
+
+	direction_sign = None
+	if norm.startswith("in "):
+		direction_sign = 1
+		norm = norm[3:].strip()
+
+	direction_match = _DURATION_DIRECTION_RE.search(norm)
+	if direction_match:
+		if direction_sign is not None:
+			return None
+		direction = direction_match.group(1)
+		direction_sign = -1 if direction == "ago" else 1
+		norm = norm[:direction_match.start()].strip()
+
+	matches = list(_DURATION_TOKEN_RE.finditer(norm))
+	if not matches:
+		return None
+
+	cursor = 0
+	total_seconds = 0
+	for match in matches:
+		if not _duration_separator_is_valid(norm[cursor:match.start()]):
+			return None
+		number_text, unit = match.groups()
+		amount = int(number_text)
+		if not number_text.startswith(("+", "-")) and direction_sign is not None:
+			amount *= direction_sign
+		total_seconds += amount * _DURATION_UNIT_SECONDS[unit.lower()]
+		cursor = match.end()
+
+	if not _duration_separator_is_valid(norm[cursor:]):
+		return None
+
+	base = now or datetime.now()
+	try:
+		target = base + timedelta(seconds=total_seconds)
+	except OverflowError as error:
+		raise ValueError(_("That duration is outside the supported date range.")) from error
+
+	return _DurationResult(
+		total_seconds=total_seconds,
+		duration_text=_format_duration_seconds(total_seconds),
+		target=target,
+	)
+
+
+def _format_duration_result(text: str, result: _DurationResult) -> str:
+	if result.total_seconds < 0:
+		meaning = _("%(duration)s ago") % {"duration": result.duration_text}
+	elif result.total_seconds > 0:
+		meaning = _("in %(duration)s") % {"duration": result.duration_text}
+	else:
+		meaning = _("now")
+
+	sign = "+" if result.total_seconds > 0 else ""
+	return "\n".join((
+		_("Input: ") + text,
+		_("Result: ") + result.target.strftime("%A, %B %d, %Y at %H:%M:%S"),
+		_("Duration: ") + result.duration_text,
+		_("Meaning: ") + meaning,
+		_("Time offset: %(n)s seconds") % {"n": f"{sign}{result.total_seconds:,}"},
+	))
 
 
 def _choose_year_for_month_day(today: date, month: int, day: int, year):
@@ -562,7 +681,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	scriptCategory = "Date Parser"
 
 	@script(
-		description=_("Parse a date expression and show the result"),
+		description=_("Parse a date or duration expression and show the result"),
 		gesture="kb:NVDA+alt+e"
 	)
 	def script_dateInput(self, gesture):
@@ -573,7 +692,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		try:
 			dlg = wx.TextEntryDialog(
 				gui.mainFrame,
-				_("Enter a date expression. Press F1 for examples and help."),
+				_("Enter a date or duration expression. Press F1 for examples and help."),
 				_("Date parser")
 			)
 			dlg.Bind(wx.EVT_CHAR_HOOK, self._onInputCharHook)
@@ -620,8 +739,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		dlg.Destroy()
 
 	def _parseDateExpression(self, text):
-		today = datetime.now().date()
 		original_text = _normalize_input_text(text)
+		now = datetime.now()
+		duration_result = _parse_duration_expression(original_text, now)
+		if duration_result is not None:
+			return _format_duration_result(original_text, duration_result)
+
+		today = now.date()
 		text = original_text.lower()
 		target = None
 		human_hint = ""
